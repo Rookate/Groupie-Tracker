@@ -1,0 +1,29 @@
+body {
+    color: white;
+    background-color: rgb(22, 21, 21);
+    text-align: center;
+    font-family: 'Oswald';
+    font-size: 150%;
+}
+
+h1 {
+    font-size: 250%;
+}
+
+h2 {
+    font-size: 200%;
+}
+
+p {
+    color: rgb(124, 116, 116);
+}
+
+button {
+    cursor: pointer;
+    border-style: none;
+    border-color: rgb(124, 116, 116);
+    background-color: rgb(22, 21, 21);
+    font-family: 'Oswald';
+    font-size: 100%;
+    color: white;
+}
