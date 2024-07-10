@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detail</title>
+    <link rel="stylesheet" href="../static/styles/detail.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <a class="back-button" href="/">
+            Back home
+        </a>
+        <div class="artist-page">
+            <div class="name">
+                {{.TheArtist.Name}}
+            </div>
+            <div class="artist-image">
+                <img src="{{.TheArtist.Image}}" alt="Artist Image">
+            </div>
+        </div>
+
+        <div class="artist-info">
+            <div class="info-content">
+                <div class="information">
+                    Creation Date : <span class="text">{{.TheArtist.CreationDate}}</span>
+                </div>
+                <div class="information">
+                    First album : <span class="text">{{.TheArtist.FirstAlbum}}</span>
+                </div>
+
+                <div class="information">
+                    Members : <span class="text">
+                        <ul>
+                            {{range .TheArtist.Members}}
+                            <li>{{.}}</li>
+                            {{end}}
+                        </ul>
+                    </span>
+                </div>
+                <div class="information">
+                    Concerts : <span class="text">
+                        <ul>
+                            {{range .TheirConcerts}}
+                            <li>{{.}}</li>
+                            {{end}}
+                        </ul>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

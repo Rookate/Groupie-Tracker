@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Page</title>
+    <link rel="stylesheet" href="/static/styles/index.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@200..700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="header">
+        <header class="title">
+            Groupie Tracker
+        </header>
+        <!--  <form class="search-bar" action="/search" method="GET"  </form>>-->
+        <div>
+            <input type="text" id="search-input" placeholder="Search...">
+
+        </div>
+    </div>
+    <div class="container" id="suggestions">
+        {{range .}}
+        <a href="/detail/{{.Id}}">
+            <div class="card">
+                <img class="card-image" src="{{.Image}}">
+                <div class="name-author">
+                    {{.Name}}
+                </div>
+            </div>
+        </a>
+        {{end}}
+    </div>
+</body>
+<script>
+    function updateRangeValue(id, value) {
+        document.getElementById(id).textContent = value;
+    }
+
+    async function fetchSuggestions(query) {
+        try {
+            const response = await fetch(`/search?q=${query}`);
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            const suggestions = await response.json();
+            displaySuggestions(suggestions);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+            displaySuggestions([]);
+        }
+    }
+
+    function displaySuggestions(suggestions) {
+        const suggestionBox = document.getElementById("suggestions");
+
+        if (suggestions.length === 0) {
+            suggestionBox.innerHTML = "<p>No results found</p>";
+            return;
+        }
+
+        suggestionBox.innerHTML = ""; // On vide les suggestions actuelles
+
+        suggestions.forEach(suggestion => {
+            if (suggestion.type === "artist/band") {
+                const card = `
+                <a href="/detail/${suggestion.id}">
+                    <div class="card">
+                        <img class="card-image" src="${suggestion.image}" alt="${suggestion.name}">
+                        <div class="name-author">
+                            ${suggestion.name}
+                        </div>
+                    </div>
+                </a>
+            `;
+                suggestionBox.insertAdjacentHTML('beforeend', card);
+            } else {
+                // Pour les autres types de résultats (membres, locations, etc.), 
+                // vous pouvez choisir de les afficher différemment ou de ne pas les afficher du tout
+                const listItem = `<li>${suggestion.type}: ${suggestion.name}</li>`;
+                suggestionBox.insertAdjacentHTML('beforeend', listItem);
+            }
+        });
+    }
+
+    function displayAllArtists() {
+        const suggestionBox = document.getElementById("suggestions");
+        suggestionBox.innerHTML = `
+         {{range .}}
+        <a href="/detail/{{.Id}}">
+            <div class="card">
+                <img class="card-image" src="{{.Image}}">
+                <div class="name-author">
+                    {{.Name}}
+                </div>
+            </div>
+        </a>
+        {{end}}
+    `;
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const searchInput = document.getElementById("search-input");
+        const suggestionBox = document.getElementById("suggestions");
+
+        // Afficher tous les artistes au chargement de la page
+        displayAllArtists();
+
+        searchInput.addEventListener("input", () => {
+            const query = searchInput.value.trim();
+            if (query.length > 0) {
+                fetchSuggestions(query);
+            } else {
+                displayAllArtists();
+            }
+        });
+    });
+</script>
+
+</html>
