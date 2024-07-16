@@ -148,35 +148,59 @@ func Search(w http.ResponseWriter, r *http.Request) {
 }
 
 func SearchArtists(query string, artists []Artist, datesLocation DatesLocation) []map[string]interface{} {
-	query = strings.ToLower(query)
+	terms := strings.Fields(strings.ToLower(query))
 	var filteredArtists []map[string]interface{}
 
+	if len(terms) == 1 && len(terms[0]) == 1 {
+		for _, artist := range ArtistsArray {
+			if strings.ToLower(artist.Name)[0] == terms[0][0] {
+				filteredArtists = append(filteredArtists, createArtistResult(artist))
+			}
+		}
+		return filteredArtists
+	}
+
 	for _, artist := range ArtistsArray {
-		found := false
-		if strings.Contains(strings.ToLower(artist.Name), query) ||
-			strings.Contains(strings.ToLower(strings.Join(artist.Members, " ")), query) ||
-			strings.Contains(strings.ToLower(artist.FirstAlbum), query) ||
-			strings.Contains(fmt.Sprint(artist.CreationDate), query) {
+		matchedAllTerms := true
+
+		for _, term := range terms {
+			matched := false
+
+			if strings.Contains(strings.ToLower(artist.Name), term) ||
+				strings.Contains(strings.ToLower(strings.Join(artist.Members, " ")), term) ||
+				strings.Contains(strings.ToLower(artist.FirstAlbum), term) ||
+				strings.Contains(fmt.Sprint(artist.CreationDate), term) {
+				matched = true
+			} else {
+				if locs, ok := ArtistLocations[artist.Id]; ok {
+					for _, loc := range locs {
+						if strings.Contains(strings.ToLower(loc), term) {
+							matched = true
+							break
+						}
+					}
+				}
+
+				if !matched {
+					if dates, ok := ArtistDates[artist.Id]; ok {
+						for _, date := range dates {
+							if strings.Contains(strings.ToLower(date), term) {
+								matched = true
+								break
+							}
+						}
+					}
+				}
+			}
+
+			if !matched {
+				matchedAllTerms = false
+				break
+			}
+		}
+
+		if matchedAllTerms {
 			filteredArtists = append(filteredArtists, createArtistResult(artist))
-			continue
-		}
-
-		for _, loc := range ArtistLocations[artist.Id] {
-			if strings.Contains(loc, strings.ToLower(query)) {
-				filteredArtists = append(filteredArtists, createArtistResult(artist))
-				found = true
-				break
-			}
-		}
-		if found {
-			continue
-		}
-
-		for _, date := range ArtistDates[artist.Id] {
-			if strings.Contains(date, query) {
-				filteredArtists = append(filteredArtists, createArtistResult(artist))
-				break
-			}
 		}
 	}
 
